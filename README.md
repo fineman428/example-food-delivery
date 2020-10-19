@@ -82,27 +82,28 @@
 
 ![t1](https://user-images.githubusercontent.com/70308042/96433455-2ac9b080-1240-11eb-9ea5-5e2bfb22cc46.JPG)
 
-    - 고객이 메뉴를 선택하여 주문한다 (ok)
-    - 고객이 결제한다 (ok)
-    - 주문이 되면 주문 내역이 입점상점주인에게 전달된다 (ok)
-    - 상점주인이 확인하여 요리해서 배달 출발한다 (ok)
+    - 상품팀이 상품정보를 등록한다. (ok)
+    - 상품 등록 정보가 렌탈 상품으로 저장된다. (ok)
+    - 저장된 렌탈 상품 정보가 Delivery 상품 aggregate에 저장된다. (ok)
 
 ![t2](https://user-images.githubusercontent.com/70308042/96433487-2c937400-1240-11eb-9f2d-3fd7ef8f3a45.JPG)
-    - 고객이 주문을 취소할 수 있다 (ok)
-    - 주문이 취소되면 배달이 취소된다 (ok)
-    - 고객이 주문상태를 중간중간 조회한다 (View-green sticker 의 추가로 ok) 
-    - 주문상태가 바뀔 때 마다 카톡으로 알림을 보낸다 (?)
+    - 고객이 상품 렌탈 주문을 한다. (ok)
+    - 주문이 되면 주문 내역이 배송팀에게 전달된다. (ok)
+    - 배송팀은 주문정보와 재고수량을 체크해서 배송가능여부를 확인한다. (ok) 
+    - 재고부족으로 배송이 불가능할 경우 주문을 취소한다. (ok)
 
 ![t3](https://user-images.githubusercontent.com/70308042/96433508-2dc4a100-1240-11eb-8137-9f33ed79c56d.JPG)
 
-    - 고객이 메뉴를 선택하여 주문한다 (ok)
-    - 고객이 결제한다 (ok)
+    - 고객이 렌탈 주문을 취소할 수 있다. (ok)
+    - 주문이 취소되면 배송이 취소된다. (ok)
+    - 고객이 주문상태를 중간에 조회 가능하다. (?)
 
 ### 모델 수정
 
-![image](https://user-images.githubusercontent.com/487999/79684176-4e4c7800-826a-11ea-8deb-b7b053e5d7c6.png)
+![fin2](https://user-images.githubusercontent.com/70308042/96435506-af1c3380-1240-11eb-8789-768e80ddce9a.JPG)
     
     - view 추가
+    - 고객이 주문상태를 중간에 조회 가능하다. (ok)
 
 
 ## 헥사고날 아키텍처 다이어그램 도출
