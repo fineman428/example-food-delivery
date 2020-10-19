@@ -49,16 +49,17 @@
 
 
 ### 이벤트 도출
-![01_event](https://user-images.githubusercontent.com/70308042/96427213-3bc2f380-1239-11eb-804a-30f2b9200e4b.JPG)
+
+![event](https://user-images.githubusercontent.com/70308042/96430939-cc033780-123d-11eb-84a5-77b9de02a9cc.JPG)
 
 ### 어그리게잇으로 묶기
-![agg](https://user-images.githubusercontent.com/70308042/96427359-6ad96500-1239-11eb-81a7-9d168e59b90b.JPG)
+![agg](https://user-images.githubusercontent.com/70308042/96430946-ce659180-123d-11eb-9813-0f3b42444fa5.JPG)
 
     - Product의 상품등록, Rental의 주문처리, Delivery의 배송과 연결된 command / event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 묶어줌
 
 ### 바운디드 컨텍스트로 묶기
 
-![bound](https://user-images.githubusercontent.com/70308042/96427367-6d3bbf00-1239-11eb-95d8-c0f5d0078f32.JPG)
+![bound](https://user-images.githubusercontent.com/70308042/96430954-d02f5500-123d-11eb-9ca1-6df197ed812b.JPG)
 
     - 도메인 서열 분리 
         - Core Domain: Rental은 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 app 의 경우 1주일 1회 미만, store 의 경우 1개월 1회 미만
@@ -67,15 +68,15 @@
 
 ### 폴리시 부착 (괄호는 수행주체, 폴리시 부착을 둘째단계에서 해놔도 상관 없음. 전체 연계가 초기에 드러남)
 
-![poli](https://user-images.githubusercontent.com/70308042/96427376-6f9e1900-1239-11eb-9306-8664478bdc80.JPG)
+![poli](https://user-images.githubusercontent.com/70308042/96430959-d1f91880-123d-11eb-9051-e51d7bf1e66b.JPG)
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-![map](https://user-images.githubusercontent.com/70308042/96427378-70cf4600-1239-11eb-96e4-e6a71ef99a07.JPG)
+![map](https://user-images.githubusercontent.com/70308042/96430966-d3c2dc00-123d-11eb-897a-952ef9d36fdb.JPG)
 
 ### 완성된 1차 모형
 
-![fin](https://user-images.githubusercontent.com/70308042/96427384-72990980-1239-11eb-8e21-41fbc0a39898.JPG)
+![fin](https://user-images.githubusercontent.com/70308042/96430971-d4f40900-123d-11eb-98f8-f1318c44e456.JPG)
 
     - View Model 추가
 
