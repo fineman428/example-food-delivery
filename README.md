@@ -78,8 +78,6 @@
 
 ![fin](https://user-images.githubusercontent.com/70308042/96431253-387e3680-123e-11eb-97af-5b32efc85836.JPG)
 
-    - View Model 추가
-
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
 ![image](https://user-images.githubusercontent.com/487999/79684167-3ecd2f00-826a-11ea-806a-957362d197e3.png)
