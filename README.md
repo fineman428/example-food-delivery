@@ -87,6 +87,7 @@
     - 저장된 렌탈 상품 정보가 Delivery 상품 aggregate에 저장된다. (ok)
 
 ![t2](https://user-images.githubusercontent.com/70308042/96433487-2c937400-1240-11eb-9f2d-3fd7ef8f3a45.JPG)
+
     - 고객이 상품 렌탈 주문을 한다. (ok)
     - 주문이 되면 주문 내역이 배송팀에게 전달된다. (ok)
     - 배송팀은 주문정보와 재고수량을 체크해서 배송가능여부를 확인한다. (ok) 
