@@ -76,7 +76,7 @@
 
 ### 완성된 1차 모형
 
-![fin](https://user-images.githubusercontent.com/70308042/96430971-d4f40900-123d-11eb-98f8-f1318c44e456.JPG)
+![fin](https://user-images.githubusercontent.com/70308042/96431253-387e3680-123e-11eb-97af-5b32efc85836.JPG)
 
     - View Model 추가
 
