@@ -49,7 +49,7 @@
 
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/487999/79683604-47bc0180-8266-11ea-9212-7e88c9bf9911.png)
+![01_event](https://user-images.githubusercontent.com/70308042/96427213-3bc2f380-1239-11eb-804a-30f2b9200e4b.JPG)
 
 ### 부적격 이벤트 탈락
 ![image](https://user-images.githubusercontent.com/487999/79683612-4b4f8880-8266-11ea-9519-7e084524a462.png)
