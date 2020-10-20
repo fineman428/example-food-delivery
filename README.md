@@ -108,7 +108,7 @@
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
-![image](https://user-images.githubusercontent.com/487999/79684772-eba9ab00-826e-11ea-9405-17e2bf39ec76.png)
+![image](https://github.com/leety007/example-food-delivery/blob/master/%ED%97%A5%EC%82%AC.png)
 
 
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
@@ -294,70 +294,103 @@ rental :  http GET http://localhost:8082/rentals/3
 
 ## 폴리글랏 퍼시스턴스
 
-앱프런트 (app) 는 서비스 특성상 많은 사용자의 유입과 상품 정보의 다양한 콘텐츠를 저장해야 하는 특징으로 인해 RDB 보다는 Document DB / NoSQL 계열의 데이터베이스인 Mongo DB 를 사용하기로 하였다. 이를 위해 order 의 선언에는 @Entity 가 아닌 @Document 로 마킹되었으며, 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 MongoDB 에 부착시켰다
+팀프로젝트 진행 시 간편한 DB구성을 위해 RDBMS 기반의 H2 DB를 적용하였다. H2는 Docker에서 설정이 가능하기 때문에 application.yml 파일에는 설정하지 않았으며 dependencies에만 추가하여 진행하였다. 
+@Table를 사용하여 따로 테이블명을 지정하였으며 Entity Pattern과 Repository Pattern을 적용하였다.
 
 ```
-# Order.java
+#Product.java
 
-package fooddelivery;
+package rentalService;
 
-@Document
-public class Order {
+@Data
+@Entity
+@Table(name="Product_table")
+public class Product {
 
-    private String id; // mongo db 적용시엔 id 는 고정값으로 key가 자동 발급되는 필드기 때문에 @Id 나 @GeneratedValue 를 주지 않아도 된다.
-    private String item;
-    private Integer 수량;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private String name;
 
+    @ColumnDefault("10") //default 10
+    private int qty ;
 }
 
+#ProductRepository.java
 
-# 주문Repository.java
-package fooddelivery;
+package rentalService;
 
-public interface 주문Repository extends JpaRepository<Order, UUID>{
+import org.springframework.data.repository.PagingAndSortingRepository;
+public interface ProductRepository extends PagingAndSortingRepository<Product, Long>{
 }
 
-# application.yml
-
-  data:
-    mongodb:
-      host: mongodb.default.svc.cluster.local
-    database: mongo-example
+pom.xml
+<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
 ```
 
 ## 폴리글랏 프로그래밍
 
-고객관리 서비스(customer)의 시나리오인 주문상태, 배달상태 변경에 따라 고객에게 카톡메시지 보내는 기능의 구현 파트는 해당 팀이 python 을 이용하여 구현하기로 하였다. 해당 파이썬 구현체는 각 이벤트를 수신하여 처리하는 Kafka consumer 로 구현되었고 코드는 다음과 같다:
+물품 대여 시스템의 시나리오인 대여, 배송 등의 시스템 구현 방식은 JPA를 기반으로 구현하였으며 주요 이벤트 처리방식은 Kafka, FeignClient를 적용하였다.
 ```
-from flask import Flask
-from redis import Redis, RedisError
-from kafka import KafkaConsumer
-import os
-import socket
+#Kafka 적용
 
+kafkaProcessor.java
+package rentalService.config.kafka;
 
-# To consume latest messages and auto-commit offsets
-consumer = KafkaConsumer('fooddelivery',
-                         group_id='',
-                         bootstrap_servers=['localhost:9092'])
-for message in consumer:
-    print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
-                                          message.offset, message.key,
-                                          message.value))
+import org.springframework.cloud.stream.annotation.Input;
+import org.springframework.cloud.stream.annotation.Output;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.SubscribableChannel;
 
-    # 카톡호출 API
-```
+public interface KafkaProcessor {
 
-파이선 애플리케이션을 컴파일하고 실행하기 위한 도커파일은 아래와 같다 (운영단계에서 할일인가? 아니다 여기 까지가 개발자가 할일이다. Immutable Image):
-```
-FROM python:2.7-slim
-WORKDIR /app
-ADD . /app
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-ENV NAME World
-EXPOSE 8090
-CMD ["python", "policy-handler.py"]
+    String INPUT = "event-in";
+    String OUTPUT = "event-out";
+
+    @Input(INPUT)
+    SubscribableChannel inboundTopic();
+
+    @Output(OUTPUT)
+    MessageChannel outboundTopic();
+
+}
+
+Rental.java
+@PostPersist
+    public void onPostPersist(){
+
+        Rentaled rentaled = new Rentaled();
+        BeanUtils.copyProperties(this, rentaled);
+        rentaled.publishAfterCommit();
+
+    }
+
+#FeingClient 적용
+
+DeliveryService.java
+package rentalService.external;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.Date;
+
+@FeignClient(name="Delivery", url="${api.delivery.url}")
+//@FeignClient(name="Delivery", url="http://localhost:8083")
+public interface DeliveryService {
+
+    @RequestMapping(method= RequestMethod.POST, path="/deliveries")
+    public void deliveryCancel(@RequestBody Delivery delivery);
+
+}
+
 ```
 
 
