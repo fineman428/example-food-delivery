@@ -431,88 +431,103 @@ public class RentalApplication {
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
-
-결제가 이루어진 후에 상점시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 상점 시스템의 처리를 위하여 결제주문이 블로킹 되지 않아도록 처리한다.
- 
-- 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
- 
+Rental이 이루어진 후에(Rentaled)  Delivery 시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리.   
+Delivery 시스템의 처리를 위하여 Rental이 블로킹 되지 않도록 처리.   
+이를 위하여 Rental 이력에 기록을 남긴 후에 곧바로 Rental이 처리 되었다는 도메인 이벤트를 카프카로 송출한다(Publish).   
 ```
-package fooddelivery;
-
+package rentalService;
+...
+@Data
 @Entity
-@Table(name="결제이력_table")
-public class 결제이력 {
-
- ...
-    @PrePersist
-    public void onPrePersist(){
-        결제승인됨 결제승인됨 = new 결제승인됨();
-        BeanUtils.copyProperties(this, 결제승인됨);
-        결제승인됨.publish();
-    }
-
-}
-```
-- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
-
-```
-package fooddelivery;
+@Table(name="Rental_table")
+public class Rental {
 
 ...
-
+   
+   @PostPersist
+   public void onPostPersist(){
+       Rentaled rentaled = new Rentaled();
+       BeanUtils.copyProperties(this, rentaled);
+       rentaled.publishAfterCommit();
+   }
+...
+}
+```
+- Delivery  서비스에서는 Rental 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현하였고, 실제 구현 된 시스템에서는 Rental 이벤트를 수신한 이후에  Rental 요청에 대한 적합성 여부(등록상품여부, 재고가용여부) 를 판단한 이후에 Delivery  처리하도록 구현   
+```
+package rentalService;
+...
 @Service
 public class PolicyHandler{
-
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
-
-        if(결제승인됨.isMe()){
-            System.out.println("##### listener 주문정보받음 : " + 결제승인됨.toJson());
-            // 주문 정보를 받았으니, 요리를 슬슬 시작해야지..
-            
-        }
-    }
-
+   ...
+   @StreamListener(KafkaProcessor.INPUT)
+   public void wheneverRentaled_Delivery(@Payload Rentaled rentaled){
+       if(rentaled.isMe()){
+           // 배송 등록
+           Delivery delivery = new Delivery();
+           delivery.setProductId(rentaled.getProductId());
+           delivery.setRentalId(rentaled.getId());
+           delivery.setStatus("DELIVERED");
+           delivery.setQty(rentaled.getQty());
+           // 재고 확인
+           Optional<Product> productOptional = ProductRepository.findByProductId(rentaled.getProductId());
+           Product product = null;
+           try {
+               product = productOptional.get();
+           } catch (Exception e) {
+               // 상품정보 확인 불가
+               System.out.println("rentaled 수신 : 상품정보 확인불가");
+               delivery.setStatus("CANCELED_UnregisteredProduct");
+               DeliveryRepository.save(delivery);
+               return;
+           }
+           if ( product.getQty() < rentaled.getQty() ){
+               // 재고 부족 -> 보상 트랜젝션 (saga pattern)
+               System.out.println("재고 수량 비교 : qty="+product.getQty()+" / rentaled.getQty()="+rentaled.getQty());
+               System.out.println("rentaled 수신 : 재고 부족 -> 보상 트랜젝션 (saga pattern))");
+               delivery.setStatus("CANCELED_OutOfStock");
+           } else {
+               // 정상 - 재고 차감
+               System.out.println("rentaled 수신 : 정상 - 재고 차감");
+               product.setQty(  product.getQty()  -  rentaled.getQty() );
+               ProductRepository.save(product);
+           }
+           // 배송정보 저장
+           DeliveryRepository.save(delivery);
+          
+       }
+   } 
+   ...
 }
-
-```
-실제 구현을 하자면, 카톡 등으로 점주는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
-  
-```
-  @Autowired 주문관리Repository 주문관리Repository;
-  
-  @StreamListener(KafkaProcessor.INPUT)
-  public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
-
-      if(결제승인됨.isMe()){
-          카톡전송(" 주문이 왔어요! : " + 결제승인됨.toString(), 주문.getStoreId());
-
-          주문관리 주문 = new 주문관리();
-          주문.setId(결제승인됨.getOrderId());
-          주문관리Repository.save(주문);
-      }
-  }
-
 ```
 
-상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
+- Delivery 시스템은 Rental 시스템과 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, Delivery 시스템이 유지보수로 인해 잠시 내려간 상태 라도 Rental 요청을 받는데 문제가 없다.
 ```
-# 상점 서비스 (store) 를 잠시 내려놓음 (ctrl+c)
+#Rental 처리
+http POST http://localhost:8082/rentals productId=1 qty=3 status=ORDERED productName=computer
 
-#주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
+#Rental  확인
+http GET http://localhost:8082/rentals/1  #제대로 Data 들어옴   
 
-#주문상태 확인
-http localhost:8080/orders     # 주문상태 안바뀜 확인
+#Delivery 서비스중지  확인
+http GET http://localhost:8083/deliveries/1
+```
+![8-1 Delivery서비스 중지후 Rental 처리](https://user-images.githubusercontent.com/70302880/96542122-631ecc80-12dc-11eb-9425-5154e8509b18.PNG)
 
-#상점 서비스 기동
-cd 상점
+```
+Delivery 서비스 기동
+cd Delivery
 mvn spring-boot:run
 
-#주문상태 확인
-http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+#Delivery 상태 확인
+http GET http://localhost:8083/deliveries/1    # 제대로 kafka로 부터 data 수신 함을 확인
+
+#이전에 요청한 Rental 상태 확인
+http GET http://localhost:8082/rentals/1 # 제대로 kafka로 부터 data 수신 함을 확인
 ```
+(status가 “CANCELED_UnregisteredProduct”으로 처리된 사유는 Rental 적합성 체크시 Delivery 의 Product Reposity에 등록된 Product를 확인하는데, Delivery 서비스를 재기동하면서 Delivery의  Product Repository(h2database)가 초기화되면서 발생)
+![8-2 Delivery서비스 기동후 Delivery및 Rental 처리확인](https://user-images.githubusercontent.com/70302880/96542118-61ed9f80-12dc-11eb-9cee-f4442ebcb617.PNG)
+
 
 
 # 운영
