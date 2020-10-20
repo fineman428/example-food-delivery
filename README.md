@@ -331,7 +331,7 @@ public class RentalApplication {
 }
 ```
 
-- 주문취소 상태값 변경 전에(@PreRemove) 배송취소를 요청하도록 처리
+- 주문취소로 주문삭제 하기전에 (@PreRemove) 배송취소를 요청하도록 처리
 
 ```
 # Rental.java (Entity)
@@ -364,24 +364,12 @@ public class RentalApplication {
 
 
 ```
-# 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
+# Delivery 서비스를 잠시 내려놓음 : 주문취소 처리 시 500 Error 발생
 
-#주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Fail
-http localhost:8081/orders item=피자 storeId=2   #Fail
+# Delivery 서비스를 다시 올림 : 주문취소 정상처리
 
-#결제서비스 재기동
-cd 결제
-mvn spring-boot:run
-
-#주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
 ```
-
-- 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
-
-
+![del1](https://user-images.githubusercontent.com/70308042/96539442-03bdbe00-12d6-11eb-8d24-7aa9b49bc985.JPG)
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
