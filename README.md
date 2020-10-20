@@ -365,12 +365,9 @@ public class RentalApplication {
 
 ```
 # Delivery 서비스를 잠시 내려놓음 : 주문취소 처리 시 500 Error 발생
-
 # Delivery 서비스를 다시 올림 : 주문취소 정상처리
-
-![del1](https://user-images.githubusercontent.com/70308042/96539442-03bdbe00-12d6-11eb-8d24-7aa9b49bc985.JPG)
 ```
-
+![del1](https://user-images.githubusercontent.com/70308042/96539442-03bdbe00-12d6-11eb-8d24-7aa9b49bc985.JPG)
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
