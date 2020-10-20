@@ -71,28 +71,28 @@
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-![map](https://user-images.githubusercontent.com/70308042/96525963-4e7c0d80-12b7-11eb-91f2-ff1eb2805fb6.JPG)
+![map](https://user-images.githubusercontent.com/70308042/96542669-8e55eb80-12dd-11eb-83dc-aa2dff4276dd.JPG)
 
 ### 완성된 1차 모형
 
-![fin](https://user-images.githubusercontent.com/70308042/96431253-387e3680-123e-11eb-97af-5b32efc85836.JPG)
+![fin](https://user-images.githubusercontent.com/70308042/96542671-8e55eb80-12dd-11eb-9c5f-72f311bcbd20.JPG)
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
-![t1](https://user-images.githubusercontent.com/70308042/96433455-2ac9b080-1240-11eb-9ea5-5e2bfb22cc46.JPG)
+![t1](https://user-images.githubusercontent.com/70308042/96542672-8eee8200-12dd-11eb-97ff-f5fa582d0385.JPG)
 
     - 상품팀이 상품정보를 등록한다. (ok)
     - 상품 등록 정보가 렌탈 상품으로 저장된다. (ok)
     - 저장된 렌탈 상품 정보가 Delivery 상품 aggregate에 저장된다. (ok)
 
-![t2](https://user-images.githubusercontent.com/70308042/96433487-2c937400-1240-11eb-9f2d-3fd7ef8f3a45.JPG)
+![t2](https://user-images.githubusercontent.com/70308042/96542673-8f871880-12dd-11eb-9648-6e5b73d5df4f.JPG)
 
     - 고객이 상품 렌탈 주문을 한다. (ok)
     - 주문이 되면 주문 내역이 배송팀에게 전달된다. (ok)
     - 배송팀은 주문정보와 재고수량을 체크해서 배송가능여부를 확인한다. (ok) 
     - 재고부족으로 배송이 불가능할 경우 주문을 취소한다. (ok)
 
-![t3](https://user-images.githubusercontent.com/70308042/96433508-2dc4a100-1240-11eb-8137-9f33ed79c56d.JPG)
+![t3](https://user-images.githubusercontent.com/70308042/96542675-901faf00-12dd-11eb-9268-47aeafad8755.JPG)
 
     - 고객이 렌탈 주문을 취소할 수 있다. (ok)
     - 주문이 취소되면 배송이 취소된다. (ok)
@@ -100,7 +100,7 @@
 
 ### 모델 수정
 
-![fin2](https://user-images.githubusercontent.com/70308042/96435506-af1c3380-1240-11eb-8789-768e80ddce9a.JPG)
+![fin2](https://user-images.githubusercontent.com/70308042/96542666-8c8c2800-12dd-11eb-8638-485d242a3394.JPG)
     
     - view 추가
     - 고객이 주문상태를 중간에 조회 가능하다. (ok)
