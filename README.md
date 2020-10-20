@@ -360,7 +360,7 @@ public class RentalApplication {
     }
 ```
 
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며,  시스템이 장애가 나면 주문도 못받는다는 것을 확인:
+- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, Delivery 시스템이 장애가 나면 주문취소를 못받는다는 것을 확인:
 
 
 ```
@@ -368,8 +368,9 @@ public class RentalApplication {
 
 # Delivery 서비스를 다시 올림 : 주문취소 정상처리
 
-```
 ![del1](https://user-images.githubusercontent.com/70308042/96539442-03bdbe00-12d6-11eb-8d24-7aa9b49bc985.JPG)
+```
+
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
